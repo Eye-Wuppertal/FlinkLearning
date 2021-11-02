@@ -84,122 +84,349 @@ public class SourceDemo01_Collection {
 env.readTextFile(本地/HDFS文件/文件夹); //压缩文件也可以
 
 ```shell
-Exception in thread "main" org.apache.flink.runtime.client.JobExecutionException: Job execution failed.
-	at org.apache.flink.runtime.jobmaster.JobResult.toJobExecutionResult(JobResult.java:144)
-	at org.apache.flink.runtime.minicluster.MiniClusterJobClient.lambda$getJobExecutionResult$3(MiniClusterJobClient.java:137)
-	at java.base/java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:642)
-	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-	at java.base/java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:2073)
-	at org.apache.flink.runtime.rpc.akka.AkkaInvocationHandler.lambda$invokeRpc$0(AkkaInvocationHandler.java:250)
-	at java.base/java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:859)
-	at java.base/java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:837)
-	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-	at java.base/java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:2073)
-	at org.apache.flink.util.concurrent.FutureUtils.doForward(FutureUtils.java:1389)
-	at org.apache.flink.runtime.concurrent.akka.ClassLoadingUtils.lambda$null$1(ClassLoadingUtils.java:93)
-	at org.apache.flink.runtime.concurrent.akka.ClassLoadingUtils.runWithContextClassLoader(ClassLoadingUtils.java:68)
-	at org.apache.flink.runtime.concurrent.akka.ClassLoadingUtils.lambda$guardCompletionWithContextClassLoader$2(ClassLoadingUtils.java:92)
-	at java.base/java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:859)
-	at java.base/java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:837)
-	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:506)
-	at java.base/java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:2073)
-	at org.apache.flink.runtime.concurrent.akka.AkkaFutureUtils$1.onComplete(AkkaFutureUtils.java:47)
-	at akka.dispatch.OnComplete.internal(Future.scala:300)
-	at akka.dispatch.OnComplete.internal(Future.scala:297)
-	at akka.dispatch.japi$CallbackBridge.apply(Future.scala:224)
-	at akka.dispatch.japi$CallbackBridge.apply(Future.scala:221)
-	at scala.concurrent.impl.CallbackRunnable.run(Promise.scala:60)
-	at org.apache.flink.runtime.concurrent.akka.AkkaFutureUtils$DirectExecutionContext.execute(AkkaFutureUtils.java:65)
-	at scala.concurrent.impl.CallbackRunnable.executeWithValue(Promise.scala:68)
-	at scala.concurrent.impl.Promise$DefaultPromise.$anonfun$tryComplete$1(Promise.scala:284)
-	at scala.concurrent.impl.Promise$DefaultPromise.$anonfun$tryComplete$1$adapted(Promise.scala:284)
-	at scala.concurrent.impl.Promise$DefaultPromise.tryComplete(Promise.scala:284)
-	at akka.pattern.PromiseActorRef.$bang(AskSupport.scala:621)
-	at akka.pattern.PipeToSupport$PipeableFuture$$anonfun$pipeTo$1.applyOrElse(PipeToSupport.scala:24)
-	at akka.pattern.PipeToSupport$PipeableFuture$$anonfun$pipeTo$1.applyOrElse(PipeToSupport.scala:23)
-	at scala.concurrent.Future.$anonfun$andThen$1(Future.scala:532)
-	at scala.concurrent.impl.Promise.liftedTree1$1(Promise.scala:29)
-	at scala.concurrent.impl.Promise.$anonfun$transform$1(Promise.scala:29)
-	at scala.concurrent.impl.CallbackRunnable.run(Promise.scala:60)
-	at akka.dispatch.BatchingExecutor$AbstractBatch.processBatch(BatchingExecutor.scala:63)
-	at akka.dispatch.BatchingExecutor$BlockableBatch.$anonfun$run$1(BatchingExecutor.scala:100)
-	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:12)
-	at scala.concurrent.BlockContext$.withBlockContext(BlockContext.scala:81)
-	at akka.dispatch.BatchingExecutor$BlockableBatch.run(BatchingExecutor.scala:100)
-	at akka.dispatch.TaskInvocation.run(AbstractDispatcher.scala:49)
-	at akka.dispatch.ForkJoinExecutorConfigurator$AkkaForkJoinTask.exec(ForkJoinExecutorConfigurator.scala:48)
-	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:290)
-	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1020)
-	at java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1656)
-	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1594)
-	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:183)
-Caused by: org.apache.flink.runtime.JobException: Recovery is suppressed by NoRestartBackoffTimeStrategy
-	at org.apache.flink.runtime.executiongraph.failover.flip1.ExecutionFailureHandler.handleFailure(ExecutionFailureHandler.java:138)
-	at org.apache.flink.runtime.executiongraph.failover.flip1.ExecutionFailureHandler.getFailureHandlingResult(ExecutionFailureHandler.java:82)
-	at org.apache.flink.runtime.scheduler.DefaultScheduler.handleTaskFailure(DefaultScheduler.java:228)
-	at org.apache.flink.runtime.scheduler.DefaultScheduler.maybeHandleTaskFailure(DefaultScheduler.java:218)
-	at org.apache.flink.runtime.scheduler.DefaultScheduler.updateTaskExecutionStateInternal(DefaultScheduler.java:209)
-	at org.apache.flink.runtime.scheduler.SchedulerBase.updateTaskExecutionState(SchedulerBase.java:679)
-	at org.apache.flink.runtime.scheduler.SchedulerNG.updateTaskExecutionState(SchedulerNG.java:79)
-	at org.apache.flink.runtime.jobmaster.JobMaster.updateTaskExecutionState(JobMaster.java:444)
-	at jdk.internal.reflect.GeneratedMethodAccessor14.invoke(Unknown Source)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
-	at org.apache.flink.runtime.rpc.akka.AkkaRpcActor.lambda$handleRpcInvocation$1(AkkaRpcActor.java:316)
-	at org.apache.flink.runtime.concurrent.akka.ClassLoadingUtils.runWithContextClassLoader(ClassLoadingUtils.java:83)
-	at org.apache.flink.runtime.rpc.akka.AkkaRpcActor.handleRpcInvocation(AkkaRpcActor.java:314)
-	at org.apache.flink.runtime.rpc.akka.AkkaRpcActor.handleRpcMessage(AkkaRpcActor.java:217)
-	at org.apache.flink.runtime.rpc.akka.FencedAkkaRpcActor.handleRpcMessage(FencedAkkaRpcActor.java:78)
-	at org.apache.flink.runtime.rpc.akka.AkkaRpcActor.handleMessage(AkkaRpcActor.java:163)
-	at akka.japi.pf.UnitCaseStatement.apply(CaseStatements.scala:24)
-	at akka.japi.pf.UnitCaseStatement.apply(CaseStatements.scala:20)
-	at scala.PartialFunction.applyOrElse(PartialFunction.scala:123)
-	at scala.PartialFunction.applyOrElse$(PartialFunction.scala:122)
-	at akka.japi.pf.UnitCaseStatement.applyOrElse(CaseStatements.scala:20)
-	at scala.PartialFunction$OrElse.applyOrElse(PartialFunction.scala:171)
-	at scala.PartialFunction$OrElse.applyOrElse(PartialFunction.scala:172)
-	at scala.PartialFunction$OrElse.applyOrElse(PartialFunction.scala:172)
-	at akka.actor.Actor.aroundReceive(Actor.scala:537)
-	at akka.actor.Actor.aroundReceive$(Actor.scala:535)
-	at akka.actor.AbstractActor.aroundReceive(AbstractActor.scala:220)
-	at akka.actor.ActorCell.receiveMessage(ActorCell.scala:580)
-	at akka.actor.ActorCell.invoke(ActorCell.scala:548)
-	at akka.dispatch.Mailbox.processMailbox(Mailbox.scala:270)
-	at akka.dispatch.Mailbox.run(Mailbox.scala:231)
-	at akka.dispatch.Mailbox.exec(Mailbox.scala:243)
-	... 5 more
+
 Caused by: java.io.IOException: Error opening the Input Split file:/F:/FlinkLearning/day06/Flink_API/data/input/dir.txt.gz [0,-1]: Not in GZIP format
-	at org.apache.flink.api.common.io.FileInputFormat.open(FileInputFormat.java:873)
-	at org.apache.flink.api.common.io.DelimitedInputFormat.open(DelimitedInputFormat.java:499)
-	at org.apache.flink.api.common.io.DelimitedInputFormat.open(DelimitedInputFormat.java:50)
-	at org.apache.flink.streaming.api.functions.source.ContinuousFileReaderOperator.loadSplit(ContinuousFileReaderOperator.java:415)
-	at org.apache.flink.streaming.api.functions.source.ContinuousFileReaderOperator.access$300(ContinuousFileReaderOperator.java:98)
-	at org.apache.flink.streaming.api.functions.source.ContinuousFileReaderOperator$ReaderState$2.prepareToProcessRecord(ContinuousFileReaderOperator.java:122)
-	at org.apache.flink.streaming.api.functions.source.ContinuousFileReaderOperator.processRecord(ContinuousFileReaderOperator.java:348)
-	at org.apache.flink.streaming.api.functions.source.ContinuousFileReaderOperator.lambda$new$0(ContinuousFileReaderOperator.java:240)
-	at org.apache.flink.streaming.runtime.tasks.StreamTaskActionExecutor$1.runThrowing(StreamTaskActionExecutor.java:50)
-	at org.apache.flink.streaming.runtime.tasks.mailbox.Mail.run(Mail.java:90)
-	at org.apache.flink.streaming.runtime.tasks.mailbox.MailboxProcessor.processMailsNonBlocking(MailboxProcessor.java:353)
-	at org.apache.flink.streaming.runtime.tasks.mailbox.MailboxProcessor.processMail(MailboxProcessor.java:317)
-	at org.apache.flink.streaming.runtime.tasks.mailbox.MailboxProcessor.runMailboxLoop(MailboxProcessor.java:201)
-	at org.apache.flink.streaming.runtime.tasks.StreamTask.runMailboxLoop(StreamTask.java:809)
-	at org.apache.flink.streaming.runtime.tasks.StreamTask.invoke(StreamTask.java:761)
-	at org.apache.flink.runtime.taskmanager.Task.runWithSystemExitMonitoring(Task.java:958)
-	at org.apache.flink.runtime.taskmanager.Task.restoreAndInvoke(Task.java:937)
-	at org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:766)
-	at org.apache.flink.runtime.taskmanager.Task.run(Task.java:575)
-	at java.base/java.lang.Thread.run(Thread.java:834)
+...
 Caused by: java.util.zip.ZipException: Not in GZIP format
 	at java.base/java.util.zip.GZIPInputStream.readHeader(GZIPInputStream.java:166)
 	at java.base/java.util.zip.GZIPInputStream.<init>(GZIPInputStream.java:80)
 	at java.base/java.util.zip.GZIPInputStream.<init>(GZIPInputStream.java:92)
-	at org.apache.flink.api.common.io.compression.GzipInflaterInputStreamFactory.create(GzipInflaterInputStreamFactory.java:42)
-	at org.apache.flink.api.common.io.compression.GzipInflaterInputStreamFactory.create(GzipInflaterInputStreamFactory.java:30)
-	at org.apache.flink.api.common.io.FileInputFormat.decorateInputStream(FileInputFormat.java:902)
-	at org.apache.flink.api.common.io.FileInputFormat.open(FileInputFormat.java:863)
+	at 
 	... 19 more
 # 错误待解决
+# 依据错误提示可以得出问题出在压缩文件上，检查发现压缩文件格式有问题修改之后问题解决
 ```
+
+```java
+package cn.itcast.source;
+
+//演示DataStream-Source-基于本地/HDFS文件或文件夹或压缩文件
+
+import org.apache.flink.api.common.RuntimeExecutionMode;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+
+import java.util.Arrays;
+
+public class SourceDemo02_File {
+    public static void main(String[] args) throws Exception {
+        // TODO 0. env
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
+
+        // TODO 1. source
+        DataStreamSource<String> ds1 = env.readTextFile("data/input/words.txt");//文件路径
+        DataStreamSource<String> ds2 = env.readTextFile("data/input/dir");//目录路径
+        DataStreamSource<String> ds3 = env.readTextFile("data/input/dir.txt.gz");
+
+
+        // TODO 2. transformation
+
+        // TODO 3. sink
+        ds1.print();
+        ds2.print();
+        ds3.print();
+
+
+        // TODO 4. execute
+        env.execute();
+
+    }
+}
+
+```
+
+
+
+## 基于Socket
+
+需求:
+1.在node1上使用nc -lk 9999 向指定端口发送数据
+nc是netcat的简称，原本是用来设置路由器,我们可以利用它向某个端口发送数据
+如果没有该命令可以下安装
+yum install -y nc
+2.使用Flink编写流处理应用程序实时统计单词数量
+
+```java
+package cn.itcast.source;
+
+//演示DataStream-Source-基于Socket
+
+import org.apache.flink.api.common.RuntimeExecutionMode;
+import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.util.Collector;
+
+
+public class SourceDemo03_Socket {
+    public static void main(String[] args) throws Exception {
+        // TODO 0. env
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
+
+        // TODO 1. source
+        DataStream<String> lines = env.socketTextStream("master", 9999);
+
+
+        // TODO 2. transformation
+//        SingleOutputStreamOperator<String> words = lines.flatMap(new FlatMapFunction<String, String>() {
+//            @Override
+//            public void flatMap(String value, Collector<String> out) throws Exception {
+//                String[] arr = value.split(" ");
+//                for (String word : arr) {
+//                    out.collect(word);
+//                }
+//            }
+//        });
+//
+//        words.map(new MapFunction<String, Tuple2<String,Integer>>() {
+//            @Override
+//            public Tuple2<String, Integer> map(String value) throws Exception {
+//                return Tuple2.of(value,1);
+//            }
+//        });
+
+        // TODO 整合上面两个 直接切割单词并记为1返回
+        SingleOutputStreamOperator<Tuple2<String, Integer>> wordAddOne = lines.flatMap(new FlatMapFunction<String, Tuple2<String, Integer>>() {
+
+            @Override
+            public void flatMap(String value, Collector<Tuple2<String, Integer>> out) throws Exception {
+                String[] arr = value.split(" ");
+                for (String word : arr) {
+                    out.collect(Tuple2.of(word,1));
+                }
+            }
+        });
+
+        SingleOutputStreamOperator<Tuple2<String, Integer>> result = wordAddOne.keyBy(t -> t.f0).sum(1);
+
+
+        // TODO 3. sink
+        result.print();
+
+
+        // TODO 4. execute
+        env.execute();
+
+    }
+}
+
+```
+
+![image-20211102213600985](.\img\image-20211102213600985.png)
+
+## 自定义Source
+
+### 随机生成数据
+
+一般用于学习测试,模拟生成一些数据
+Flink还提供了数据源接口,我们实现该接口就可以实现自定义数据源，不同的接口有不同的功能，分类如下：
+SourceFunction:非并行数据源(并行度只能=1)
+RichSourceFunction:多功能非并行数据源(并行度只能=1)
+ParallelSourceFunction:并行数据源(并行度能够>=1)
+**RichParallelSourceFunction**:多功能并行数据源(并行度能够>=1)--后续学习的Kafka数据源使用的就是该接口
+
+![1610678757851](.\img\1610678757851.png)
+
+```java
+package cn.itcast.source;
+
+//演示DataStream-Source-自定义数据源
+//需求：
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.flink.api.common.RuntimeExecutionMode;
+import org.apache.flink.api.common.functions.FlatMapFunction;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
+import org.apache.flink.util.Collector;
+
+import java.util.Random;
+import java.util.UUID;
+
+
+public class SourceDemo04_Customer {
+    public static void main(String[] args) throws Exception {
+        // TODO 0. env
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
+
+        // TODO 1. source
+        DataStream<Order> orderDS = env.addSource(new MyOrderSource()).setParallelism(2);
+
+
+        // TODO 2. transformation
+
+
+        // TODO 3. sink
+        orderDS.print();
+
+
+        // TODO 4. execute
+        env.execute();
+
+    }
+    @Data//lombok已经捆绑使用 可以直接生成调用类数据的方法 alt+7 查看
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Order{
+        private String id;
+        private Integer userId;
+        private Integer money;
+        private Long createTime;
+
+    }
+    public static class MyOrderSource extends RichParallelSourceFunction<Order> {
+
+        private Boolean flag = true;
+        //执行并生成数据
+        @Override
+        public void run(SourceContext<Order> ctx) throws Exception {
+            Random random = new Random();
+            while (flag) {
+                String oid = UUID.randomUUID().toString();
+                int userId = random.nextInt(3);
+                int money = random.nextInt(101);
+                long createTime = System.currentTimeMillis();
+                ctx.collect(new Order(oid,userId,money,createTime));
+                Thread.sleep(1000);
+            }
+        }
+
+        //执行cancel命令的时候执行
+        @Override
+        public void cancel() {
+            flag = false;
+        }
+    }
+
+}
+
+```
+
+![image-20211102215717478](.\img\image-20211102215717478.png)
+
+### MySQL
+
+需求
+实际开发中,经常会实时接收一些数据,要和MySQL中存储的一些规则进行匹配,那么这时候就可以使用Flink自定义数据源从MySQL中读取数据
+那么现在先完成一个简单的需求:
+从MySQL中实时加载数据
+要求MySQL中的数据有变化,也能被实时加载出来
+
+```java
+package cn.itcast.source;
+
+//演示DataStream-Source-自定义数据源 MySQL
+//需求：
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.flink.api.common.RuntimeExecutionMode;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.Random;
+import java.util.UUID;
+
+
+public class SourceDemo05_MySQL {
+    public static void main(String[] args) throws Exception {
+        // TODO 0. env
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
+
+        // TODO 1. source
+        DataStream<Student> studentDS = env.addSource(new MySQLSource()).setParallelism(1);
+
+
+        // TODO 2. transformation
+
+
+
+
+        // TODO 3. sink
+        studentDS.print();
+
+
+        // TODO 4. execute
+        env.execute();
+
+    }
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Student {
+        private Integer id;
+        private String name;
+        private Integer age;
+    }
+
+    public static class MySQLSource extends RichParallelSourceFunction<Student> {
+        private boolean flag = true;
+        private Connection conn = null;
+        private PreparedStatement ps =null;
+        private ResultSet rs  = null;
+        //open只执行一次,适合开启资源
+        @Override
+        public void open(Configuration parameters) throws Exception {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/bigdata", "root", "root");
+            String sql = "select id,name,age from t_student";
+            ps = conn.prepareStatement(sql);
+        }
+
+        @Override
+        public void run(SourceContext<Student> ctx) throws Exception {
+            while (flag) {
+                rs = ps.executeQuery();
+                while (rs.next()) {
+                    int id = rs.getInt("id");
+                    String name = rs.getString("name");
+                    int age  = rs.getInt("age");
+                    ctx.collect(new Student(id,name,age));
+                }
+                Thread.sleep(5000);
+            }
+        }
+
+        //接收到cancel命令时取消数据生成
+        @Override
+        public void cancel() {
+            flag = false;
+        }
+
+        //close里面关闭资源
+        @Override
+        public void close() throws Exception {
+            if(conn != null) conn.close();
+            if(ps != null) ps.close();
+            if(rs != null) rs.close();
+
+        }
+    }
+
+}
+
+```
+
+
 
 
 
