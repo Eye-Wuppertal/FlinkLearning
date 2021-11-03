@@ -426,17 +426,19 @@ public class SourceDemo05_MySQL {
 
 ```
 
-
-
-
-
-
-
-
-
 # Transform（操作处理）
 
+## 基本操作
 
+map/flatMap/filter/keyBy/sum/reduce...
+
+和之前学习的Scala/Spark里面的一样的意思
+
+需求
+
+对流数据中的单词进行统计，排除敏感词TMD(Theater Missile Defense 战区导弹防御)
+
+## 合并和连接
 
 # Sink（输出）
 
