@@ -387,8 +387,8 @@ public class SourceDemo05_MySQL {
         //open只执行一次,适合开启资源
         @Override
         public void open(Configuration parameters) throws Exception {
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/bigdata", "root", "root");
-            String sql = "select id,name,age from t_student";
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root", "root");
+            String sql = "select id,name,age from first_test";
             ps = conn.prepareStatement(sql);
         }
 
@@ -424,35 +424,8 @@ public class SourceDemo05_MySQL {
 
 }
 
+
 ```
 
-# Transform（操作处理）
-
-## 基本操作
-
-map/flatMap/filter/keyBy/sum/reduce...
-
-和之前学习的Scala/Spark里面的一样的意思
-
-需求
-
-对流数据中的单词进行统计，排除敏感词TMD(Theater Missile Defense 战区导弹防御)
-
-## 合并和连接
-
-# Sink（输出）
-
-
-
-# Connectors（）
-
-
-
-
-
-
-
-
-
-
+![image-20211104214146170](.\img\image-20211104214146170.png)
 

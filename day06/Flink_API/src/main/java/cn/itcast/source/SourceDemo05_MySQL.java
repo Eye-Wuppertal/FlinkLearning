@@ -60,8 +60,8 @@ public class SourceDemo05_MySQL {
         //open只执行一次,适合开启资源
         @Override
         public void open(Configuration parameters) throws Exception {
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/bigdata", "root", "root");
-            String sql = "select id,name,age from t_student";
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root", "root");
+            String sql = "select id,name,age from first_test";
             ps = conn.prepareStatement(sql);
         }
 
