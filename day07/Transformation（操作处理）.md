@@ -388,17 +388,392 @@ public class TransformationDemo05 {
 
 # Sink（输出）
 
+## 基于控制台和文件
 
+API
+1.ds.print 直接输出到控制台
+2.ds.printToErr() 直接输出到控制台,用红色
+3.ds.writeAsText("本地/HDFS的path", WriteMode.OVERWRITE).setParallelism(1)
+注意:
+在输出到path的时候,可以在前面设置并行度,如果
+**并行度>1,则path为目录**
+**并行度=1,则path为文件名**
+
+```java
+package cn.itcast.sink;
+
+import org.apache.flink.api.common.RuntimeExecutionMode;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+
+/**
+ * Author itcast
+ * Desc 演示DataStream-Sink-基于控制台和文件
+ */
+public class SinkDemo01 {
+    public static void main(String[] args) throws Exception {
+        //TODO 0.env
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
+
+        //TODO 1.source
+        DataStream<String> ds = env.readTextFile("data/input/words.txt");
+
+        //TODO 2.transformation
+
+
+        //TODO 3.sink
+        ds.print();
+        ds.print("输出标识");
+        ds.printToErr();//会在控制台上以红色输出
+        ds.printToErr("输出标识");//会在控制台上以红色输出
+        ds.writeAsText("data/output/result1").setParallelism(1);//为文件名
+        ds.writeAsText("data/output/result2").setParallelism(2);//为目录
+
+        //TODO 4.execute
+        env.execute();
+    }
+}
+```
+
+![image-20211105094904091](.\img\image-20211105094904091.png)
+
+## 自定义Sink
+
+### MySQL
+
+需求：将Flink集合中的数据通过自定义Sink保存到MySQL
+
+```java
+package cn.itcast.sink;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.flink.api.common.RuntimeExecutionMode;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+
+/**
+ * Author itcast
+ * Desc 演示DataStream-Sink-自定义Sink
+ */
+public class SinkDemo02 {
+    public static void main(String[] args) throws Exception {
+        //TODO 0.env
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
+
+        //TODO 1.source
+        DataStream<Student> studentDS = env.fromElements(new Student(null, "tony", 18));
+        //TODO 2.transformation
+        //TODO 3.sink
+        studentDS.addSink(new MySQLSink());
+
+        //TODO 4.execute
+        env.execute();
+    }
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Student {
+        private Integer id;
+        private String name;
+        private Integer age;
+    }
+
+    public static class MySQLSink extends RichSinkFunction<Student> {
+        private Connection conn = null;
+        private PreparedStatement ps =null;
+
+        @Override
+        public void open(Configuration parameters) throws Exception {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root", "root");
+            String sql = "INSERT INTO `first_test` (`id`, `name`, `age`) VALUES (null, ?, ?);";
+            ps = conn.prepareStatement(sql);
+        }
+
+        @Override
+        public void invoke(Student value, Context context) throws Exception {
+            //设置?占位符参数值
+            ps.setString(1,value.getName());
+            ps.setInt(2,value.getAge());
+            //执行sql
+            ps.executeUpdate();
+        }
+        @Override
+        public void close() throws Exception {
+            if(conn != null) conn.close();
+            if(ps != null) ps.close();
+        }
+    }
+}
+```
 
 # Connectors（连接）
 
+## JDBC
+
+```java
+package cn.itcast.connectors;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.flink.api.common.RuntimeExecutionMode;
+import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
+import org.apache.flink.connector.jdbc.JdbcSink;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+
+/**
+ * Author itcast
+ * Desc 演示Flink官方提供的JdbcSink
+ */
+public class JDBCDemo {
+    public static void main(String[] args) throws Exception {
+        //TODO 0.env
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
+
+        //TODO 1.source
+        DataStream<Student> studentDS = env.fromElements(new Student(null, "tony2", 18));
+        //TODO 2.transformation
+        //TODO 3.sink
+        studentDS.addSink(JdbcSink.sink(
+                "INSERT INTO `first_test` (`id`, `name`, `age`) VALUES (null, ?, ?)",
+                (ps, value) -> {
+                    ps.setString(1, value.getName());
+                    ps.setInt(2, value.getAge());
+                }, new JdbcConnectionOptions.JdbcConnectionOptionsBuilder()
+                        .withUrl("jdbc:mysql://localhost:3306/test")
+                        .withUsername("root")
+                        .withPassword("root")
+                        .withDriverName("com.mysql.jdbc.Driver")
+                        .build()));
+
+        //TODO 4.execute
+        env.execute();
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Student {
+        private Integer id;
+        private String name;
+        private Integer age;
+    }
+
+}
+
+```
+
+## Kafka Consumer/Source
+
+![image-20211105130620067](.\img\image-20211105130620067.png)
+
+参数
+
+env.addSource(new Kafka Consumer/Source(参数))
+
+以下参数都必须/建议设置上
+
+1. 订阅的主题
+2. 反序列化规则
+3. 消费者属性-集群地址
+4. 消费者属性-消费者组id(如果不设置,会有默认的,但是默认的不方便管理)
+5. 消费者属性-offset重置规则,如earliest/latest...
+6. 动态分区检测(当kafka的分区数变化/增加时,Flink能够检测到!)
+7. 如果没有设置Checkpoint,那么可以设置自动提交offset,后续学习了Checkpoint会把offset随着做Checkpoint的时候提交到Checkpoint和默认主题中
+
+![image-20211105163923637](.\img\image-20211105163923637.png)
+
+![image-20211105163939972](.\img\image-20211105163939972.png)
+
+![image-20211105164009988](.\img\image-20211105164009988.png)
+
+![image-20211105164021803](.\img\image-20211105164021803.png)
+
+### Kafka命令
+
+```shell
+# 查看当前服务器中的所有topic
+kafka-topics.sh --list --zookeeper  master:2181
+# 创建topic
+kafka-topics.sh --create --zookeeper master:2181 --replication-factor 2 --partitions 3 --topic flink_kafka
+# 查看某个Topic的详情
+kafka-topics.sh --topic flink_kafka --describe --zookeeper master:2181
+# 删除topic
+kafka-topics.sh --delete --zookeeper master:2181 --topic flink_kafka
+# 通过shell命令发送消息
+kafka-console-producer.sh --broker-list master:9092 --topic flink_kafka
+# 通过shell消费消息
+kafka-console-consumer.sh --bootstrap-server master:9092 --topic flink_kafka --from-beginning 
+# 修改分区
+kafka-topics.sh --alter --partitions 4 --topic flink_kafka --zookeeper master:2181
+```
+
+```java
+package cn.itcast.connectors;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.flink.api.common.RuntimeExecutionMode;
+import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.connector.jdbc.JdbcConnectionOptions;
+import org.apache.flink.connector.jdbc.JdbcSink;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+
+import java.util.Properties;
+
+/**
+ * Author itcast
+ * Desc 演示Flink-Connectors-KafkaComsumer/Source
+ */
+
+public class KafkaComsumerDemo {
+    public static void main(String[] args) throws Exception {
+        //TODO 0.env
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
+
+        //TODO 1.source     添加各属性
+        Properties props = new Properties();
+        props.setProperty("bootstrap.servers", "master:9092");       //集群地址
+        props.setProperty("group.id", "flink");                 //消费者ID
+        props.setProperty("auto.offset.reset", "latest");
+        //latest有offset记录从记录位置开始消费,没有记录从最新的/最后的消息开始消费 /earliest有offset记录从记录位置开始消费,没有记录从最早的/最开始的消息开始消费
+        props.setProperty("flink.partition-discovery.interval-millis","5000");
+        //会开启一个后台线程每隔5s检测一下Kafka的分区情况,实现动态分区检测
+        props.setProperty("enable.auto.commit", "true");
+        //自动提交(提交到默认主题,后续学习了Checkpoint后随着Checkpoint存储在Checkpoint和默认主题中)
+        props.setProperty("auto.commit.interval.ms", "2000");   //自动提交的时间间隔
+
+        //使用连接参数创建FlinkKafkaConsumer/kafkaSource
+        FlinkKafkaConsumer<String> kafkaSource = new FlinkKafkaConsumer<String>("flink_kafka", new SimpleStringSchema(), props);
+        //使用kafkaSource
+        DataStream<String> kafkaDS = env.addSource(kafkaSource);
 
 
+        //TODO 2.transformation
 
 
+        //TODO 3.sink
+        kafkaDS.print();
 
+        //TODO 4.execute
+        env.execute();
 
+    }
+}
 
+// 准备主题kafka-topics.sh --create --zookeeper master:2181 --replication-factor 2 --partitions 3 --topic flink_kafka
+// 启动控制台生产者发送数据 /export/server/kafka/bin/kafka-console-producer.sh --broker-list node1:9092 --topic flink_kafka
+// 启动程序FlinkKafkaConsumer
+// 观察控制台输出结果
+```
+
+![image-20211107031358883](.\img\image-20211107031358883.png)
+
+中途出现的问题
+
+```cmd
+Caused by: org.apache.kafka.common.config.ConfigException: No resolvable bootstrap urls given in bootstrap.servers
+	at org.apache.kafka.clients.ClientUtils.parseAndValidateAddresses(ClientUtils.java:88)
+	at org.apache.kafka.clients.ClientUtils.parseAndValidateAddresses(ClientUtils.java:47)
+	at org.apache.kafka.clients.consumer.KafkaConsumer.<init>(KafkaConsumer.java:735)
+	... 17 more
+	
+# 错误原因：bootstrap.servers 打错了
+```
+
+## Kafka Producer/Sink
+
+控制台生成者 ---> flink_kafka主题 --> Flink -->etl ---> flink_kafka2主题--->控制台消费者
+
+```java
+package cn.itcast.connectors;
+
+import org.apache.flink.api.common.RuntimeExecutionMode;
+import org.apache.flink.api.common.functions.FilterFunction;
+import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
+
+import java.util.Properties;
+
+/**
+ * Author itcast
+ * Desc 演示Flink-Connectors-KafkaComsumer/Source + KafkaProducer/Sink
+ */
+public class KafkaSinkDemo {
+    public static void main(String[] args) throws Exception {
+        //TODO 0.env
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
+
+        //TODO 1.source
+        //准备kafka连接参数
+        Properties props  = new Properties();
+        props.setProperty("bootstrap.servers", "master:9092");//集群地址
+        props.setProperty("group.id", "flink");//消费者组id
+        props.setProperty("auto.offset.reset","latest");//latest有offset记录从记录位置开始消费,没有记录从最新的/最后的消息开始消费 /earliest有offset记录从记录位置开始消费,没有记录从最早的/最开始的消息开始消费
+        props.setProperty("flink.partition-discovery.interval-millis","5000");//会开启一个后台线程每隔5s检测一下Kafka的分区情况,实现动态分区检测
+        props.setProperty("enable.auto.commit", "true");//自动提交(提交到默认主题,后续学习了Checkpoint后随着Checkpoint存储在Checkpoint和默认主题中)
+        props.setProperty("auto.commit.interval.ms", "2000");//自动提交的时间间隔
+        //使用连接参数创建FlinkKafkaConsumer/kafkaSource
+        FlinkKafkaConsumer<String> kafkaSource = new FlinkKafkaConsumer<String>("flink_kafka", new SimpleStringSchema(), props);
+        //使用kafkaSource
+        DataStream<String> kafkaDS = env.addSource(kafkaSource);
+
+        //TODO 2.transformation
+        SingleOutputStreamOperator<String> etlDS = kafkaDS.filter(new FilterFunction<String>() {
+            @Override
+            public boolean filter(String value) throws Exception {
+                return value.contains("success");
+            }
+        });
+
+        //TODO 3.sink
+        etlDS.print();
+
+        Properties props2 = new Properties();
+        props2.setProperty("bootstrap.servers", "master:9092");
+        FlinkKafkaProducer<String> kafkaSink = new FlinkKafkaProducer<>("flink_kafka2", new SimpleStringSchema(), props2);
+        etlDS.addSink(kafkaSink);
+
+        //TODO 4.execute
+        env.execute();
+    }
+}
+//控制台生成者 ---> flink_kafka主题 --> Flink -->etl ---> flink_kafka2主题--->控制台消费者
+//准备主题 kafka-topics.sh --create --zookeeper master:2181 --replication-factor 2 --partitions 3 --topic flink_kafka
+//准备主题 kafka-topics.sh --create --zookeeper master:2181 --replication-factor 2 --partitions 3 --topic flink_kafka2
+//启动控制台生产者发送数据 kafka-console-producer.sh --broker-list master:9092 --topic flink_kafka
+//log:2020-10-10 success xxx
+//log:2020-10-10 success xxx
+//log:2020-10-10 success xxx
+//log:2020-10-10 fail xxx
+//启动控制台消费者消费数据 kafka-console-consumer.sh --bootstrap-server master:9092 --topic flink_kafka2 --from-beginning
+//启动程序FlinkKafkaConsumer
+//观察控制台输出结果
+
+```
+
+![image-20211107035344114](.\img\image-20211107035344114.png)
 
 
 

@@ -26,7 +26,7 @@ public class KafkaComsumerDemo {
 
         //TODO 1.source     添加各属性
         Properties props = new Properties();
-        props.setProperty("boot.servers", "master:9092");       //集群地址
+        props.setProperty("bootstrap.servers", "master:9092");       //集群地址
         props.setProperty("group.id", "flink");                 //消费者ID
         props.setProperty("auto.offset.reset", "latest");
         //latest有offset记录从记录位置开始消费,没有记录从最新的/最后的消息开始消费 /earliest有offset记录从记录位置开始消费,没有记录从最早的/最开始的消息开始消费
@@ -54,7 +54,7 @@ public class KafkaComsumerDemo {
     }
 }
 
-// 准备主题 /export/server/kafka/bin/kafka-topics.sh --create --zookeeper node1:2181 --replication-factor 2 --partitions 3 --topic flink_kafka
+// 准备主题kafka-topics.sh --create --zookeeper master:2181 --replication-factor 2 --partitions 3 --topic flink_kafka
 // 启动控制台生产者发送数据 /export/server/kafka/bin/kafka-console-producer.sh --broker-list node1:9092 --topic flink_kafka
 // 启动程序FlinkKafkaConsumer
 // 观察控制台输出结果
