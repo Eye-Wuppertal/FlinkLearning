@@ -27,8 +27,6 @@
 * 流量削峰
   * 因为消息队列是低延迟、高可靠、高吞吐的，可以应对大量并发
 
-![image-20200916093919754](.\img\image-20200916093919754.png)
-
 * 日志处理
   * 可以使用消息队列作为临时存储，或者一种通信管道
 
@@ -196,7 +194,7 @@ kafka-console-consumer.sh --bootstrap-server master:9092 --topic test --from-beg
 
 安装Kafka Tools后启动Kafka
 
-![image-20211107020712114](F:\FlinkLearning\KafkaLearning\img\image-20211107020712114.png)
+![image-20211107020712114](.\img\image-20211107020712114.png)
 
 
 
@@ -283,7 +281,7 @@ Kafka中提供了内置的性能测试工具
 
 ### 1. broker
 
-![image-20211107023541734](F:\FlinkLearning\KafkaLearning\img\image-20211107023541734.png)
+![image-20211107023541734](.\img\image-20211107023541734.png)
 
 * Kafka服务器进程，生产者、消费者都要连接broker
 * 一个集群由多个broker组成，功能实现Kafka集群的负载均衡、容错
@@ -326,7 +324,7 @@ Kafka集群的分布式就是由分区来实现的。一个topic中的消息可�
 
 ### 8. consumer group：消费者组
 
-一个消费者组中的消费者可以共同消费topic中的分区数据。每一个消费者组都一个唯一的名字。配置group.id一样的消费者是属于同一个组中
+一个消费者组中的消费者可以共同消费topic中的分区数据。每一个消费者组都有一个唯一的名字。配置group.id一样的消费者是属于同一个组中
 
 ![image-20211107024646775](.\img\image-20211107024646775.png)
 
