@@ -198,14 +198,6 @@ kafka-console-consumer.sh --bootstrap-server master:9092 --topic test --from-beg
 
 
 
-
-
-
-
-
-
-
-
 ### Kafka的生产者/消费者/工具
 
 * 安装Kafka集群，可以测试以下
