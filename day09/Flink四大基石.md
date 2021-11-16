@@ -237,35 +237,35 @@ public class WindowDemo02 {
 
 ## 代码演示-Session会话窗口
 
-![1610851196159](F:/FlinkLearningFile/资料-flink1.12入门到精通/Flink-day03/笔记/Flink-day03.assets/1610851196159.png)
+![1610851196159](.\img\1610851196159.png)
 
 ```java
-package cn.itcast.window;
+package cn.tal.Senior_API.Window;
+/*
+    @TODO:  演示会话窗口
+    @Author tal
+*/
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.flink.api.common.RuntimeExecutionMode;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.assigners.ProcessingTimeSessionWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 
-/**
- * Author itcast
- * Desc 演示会话窗口
- */
-public class WindowDemo_5 {
+public class WindowDemo03 {
     public static void main(String[] args) throws Exception {
         //TODO 0.env
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
+            StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+            env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
 
         //TODO 1.source
-        DataStream<String> lines = env.socketTextStream("node1", 9999);
+        DataStreamSource<String> lines = env.socketTextStream("master", 9999);
 
         //TODO 2.transformation
         SingleOutputStreamOperator<CartInfo> carDS = lines.map(new MapFunction<String, CartInfo>() {
@@ -281,28 +281,36 @@ public class WindowDemo_5 {
         KeyedStream<CartInfo, String> keyedDS = carDS.keyBy(CartInfo::getSensorId);
 
         //需求:设置会话超时时间为10s,10s内没有数据到来,则触发上个窗口的计算(前提是上一个窗口得有数据!)
-        SingleOutputStreamOperator<CartInfo> result = keyedDS.window(ProcessingTimeSessionWindows.withGap(Time.seconds(10)))
+        SingleOutputStreamOperator<CartInfo> result = keyedDS
+                .window(ProcessingTimeSessionWindows
+                .withGap((Time.seconds(10))))
                 .sum("count");
+
 
         //TODO 3.sink
         result.print();
         /*
-1,1
-1,1
-2,1
-2,1
+        1,1
+        1,1
+        2,1
+        2,1
          */
 
         //TODO 4.execute
+
         env.execute();
+
     }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class CartInfo {
-        private String sensorId;//信号灯id
-        private Integer count;//通过该信号灯的车的数量
+    public static class CartInfo{
+        private String sensorId;    //信号灯ID
+        private Integer count;      //通过信号灯的车数量
     }
+
+
 }
 
 ```
@@ -319,21 +327,19 @@ public class WindowDemo_5 {
 
 ## EventTime的重要性和Watermarker的引入
 
+![1610851718721](.\img\1610851718721.png)
 
+![1610851796020](.\img\1610851796020.png)
 
-![1610851718721](F:/FlinkLearningFile/资料-flink1.12入门到精通/Flink-day03/笔记/Flink-day03.assets/1610851718721.png)
+![1610851902519](.\img\1610851902519.png)
 
-![1610851796020](F:/FlinkLearningFile/资料-flink1.12入门到精通/Flink-day03/笔记/Flink-day03.assets/1610851796020.png)
+![1610851982096](.\img\1610851982096.png)
 
-![1610851902519](F:/FlinkLearningFile/资料-flink1.12入门到精通/Flink-day03/笔记/Flink-day03.assets/1610851902519.png)
-
-![1610851982096](F:/FlinkLearningFile/资料-flink1.12入门到精通/Flink-day03/笔记/Flink-day03.assets/1610851982096.png)
-
-![1610852067330](F:/FlinkLearningFile/资料-flink1.12入门到精通/Flink-day03/笔记/Flink-day03.assets/1610852067330.png)
+![1610852067330](.\img\1610852067330.png)
 
 
 
-## Watermarker详解
+## Watermaker详解
 
 ==总结:==
 
@@ -343,7 +349,7 @@ public class WindowDemo_5 {
 
 3.Watermarker 可以通过改变窗口触发计算时机来解决一定程度上的数据乱序或延迟达到的问题
 
-==4.Watermarker  >= 窗口结束时间 时触发窗口计算==
+4.Watermarker  >= 窗口结束时间 时触发窗口计算==
 
 5.当前的最大的事件时间 - 最大允许的数据延迟时间或乱序时间>= 窗口结束时间时触发窗口计算
 
@@ -351,27 +357,21 @@ public class WindowDemo_5 {
 
 
 
-![1610852812181](F:/FlinkLearningFile/资料-flink1.12入门到精通/Flink-day03/笔记/Flink-day03.assets/1610852812181.png)
+![1610852812181](.\img\1610852812181.png) 
 
+![1610852975345](.\img\1610852975345.png)
 
+![1610853067679](.\img\1610853067679.png)
 
-![1610852975345](F:/FlinkLearningFile/资料-flink1.12入门到精通/Flink-day03/笔记/Flink-day03.assets/1610852975345.png)
+![1610853188037](.\img\1610853188037.png)
 
-![1610853067679](F:/FlinkLearningFile/资料-flink1.12入门到精通/Flink-day03/笔记/Flink-day03.assets/1610853067679.png)
-
-![1610853188037](F:/FlinkLearningFile/资料-flink1.12入门到精通/Flink-day03/笔记/Flink-day03.assets/1610853188037.png)
-
-
-
-
-
-![1610854253775](F:/FlinkLearningFile/资料-flink1.12入门到精通/Flink-day03/笔记/Flink-day03.assets/1610854253775.png)
+![1610854253775](.\img\1610854253775.png)
 
 
 
 ## 代码演示-开发版-掌握
 
-![1610865619834](F:/FlinkLearningFile/资料-flink1.12入门到精通/Flink-day03/笔记/Flink-day03.assets/1610865619834.png)
+![1610865619834](.\img\1610865619834.png)
 
 https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/event_timestamps_watermarks.html
 

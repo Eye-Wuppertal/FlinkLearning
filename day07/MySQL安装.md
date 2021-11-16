@@ -27,3 +27,12 @@ skip-grant-tables
 SQLyog 
 Name: any
 key: dd987f34-f358-4894-bd0f-21f3f04be9c1
+
+```shell
+mysqld --initialize --console
+mysqld --install mysql
+net start mysql
+mysql -uroot -p
+ALTER USER 'root'@'localhost' IDENTIFIED BY '111111';
+```
+
