@@ -350,7 +350,7 @@ public class StateDemo02 {
 
 0.Flink的JobManager创建CheckpointCoordinator
 
-1.Coordinator向所有的SourceOperator发送Barrier栅栏(理解为执行Checkpoint的信号)
+1.Coordinator向所有的SourceOperator发送Barrier栅栏(理解为执行 Checkpoint的信号)
 
 2.SourceOperator接收到Barrier之后,暂停当前的操作(暂停的时间很短,因为后续的写快照是异步的),并制作State快照, 然后将自己的快照保存到指定的介质中(如HDFS), 一切 ok之后向Coordinator汇报并将Barrier发送给下游的其他Operator
 
