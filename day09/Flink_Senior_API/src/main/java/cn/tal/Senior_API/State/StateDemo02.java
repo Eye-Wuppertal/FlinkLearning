@@ -83,6 +83,7 @@ public class StateDemo02 {
 
                 //模拟异常
                 if(offset % 5 == 0){
+                    System.out.println("bug出现了.....");
                     throw new Exception("bug出现了.....");
                 }
             }

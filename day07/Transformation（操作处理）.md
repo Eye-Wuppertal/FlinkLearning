@@ -678,7 +678,7 @@ public class KafkaComsumerDemo {
 }
 
 // 准备主题kafka-topics.sh --create --zookeeper master:2181 --replication-factor 2 --partitions 3 --topic flink_kafka
-// 启动控制台生产者发送数据 /export/server/kafka/bin/kafka-console-producer.sh --broker-list node1:9092 --topic flink_kafka
+// 启动控制台生产者发送数据 kafka-console-producer.sh --broker-list master:9092 --topic flink_kafka
 // 启动程序FlinkKafkaConsumer
 // 观察控制台输出结果
 ```

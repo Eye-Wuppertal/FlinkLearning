@@ -348,21 +348,17 @@ public class StateDemo02 {
 
 ![1610934109534](.\img\1610934109534.png)
 
-0.Flink的JobManager创建CheckpointCoordinator
+0. Flink的JobManager创建CheckpointCoordinator
 
-1.Coordinator向所有的SourceOperator发送Barrier栅栏(理解为执行 Checkpoint的信号)
+1. Coordinator向所有的SourceOperator发送Barrier栅栏(理解为执行 Checkpoint的信号)
 
-2.SourceOperator接收到Barrier之后,暂停当前的操作(暂停的时间很短,因为后续的写快照是异步的),并制作State快照, 然后将自己的快照保存到指定的介质中(如HDFS), 一切 ok之后向Coordinator汇报并将Barrier发送给下游的其他Operator
+2. SourceOperator接收到Barrier之后,暂停当前的操作(暂停的时间很短,因为后续的写快照是异步的),并制作State快照, 然后将自己的快照保存到指定的介质中(如HDFS), 一切 ok之后向Coordinator汇报并将Barrier发送给下游的其他Operator
 
-3.其他的如TransformationOperator接收到Barrier,重复第2步,最后将Barrier发送给Sink
+3. 其他的如TransformationOperator接收到Barrier,重复第2步,最后将Barrier发送给Sink
 
-4.Sink接收到Barrier之后重复第2步
+4. Sink接收到Barrier之后重复第2步
 
-5.Coordinator接收到所有的Operator的执行ok的汇报结果,认为本次快照执行成功
-
-
-
-
+5. Coordinator接收到所有的Operator的执行ok的汇报结果,认为本次快照执行成功
 
 Flink中的Checkpoint底层使用了Chandy-Lamport algorithm分布式快照算法可以保证数据的在分布式环境下的一致性! 
 
@@ -380,9 +376,7 @@ Flink中使用Chandy-Lamport algorithm分布式快照算法取得了成功,后�
 
 ![1610935633839](.\img\1610935633839.png)
 
-
-
-![1610935708886](.\img\1610935708886.png)
+![1610935708886](.\img\1610935708886.png) 
 
 ![1610935783481](.\img\1610935783481.png)
 
