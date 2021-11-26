@@ -1,6 +1,6 @@
 package cn.tal.Senior_API.Checkpoint;
 /* 
-    @TODO: 演示Flink-Checkpoint相关配置
+    @TODO: 演示Flink-Checkpoint+重启策略实现状态恢复
     @Author tal
 */
 
@@ -8,7 +8,9 @@ import org.apache.commons.lang3.SystemUtils;
 import org.apache.flink.api.common.RuntimeExecutionMode;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
+import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
@@ -20,14 +22,15 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.util.Collector;
 
-
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
-public class CheckpointDemo01 {
+public class CheckpointDemo02_Restart {
     public static void main(String[] args) throws Exception {
         //TODO 0.env
             StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
             env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
+
         //TODO ===========Checkpoint参数设置====
         //===========类型1:必须参数=============
         //设置Checkpoint的时间间隔为1000ms做一次Checkpoint/其实就是每隔1000ms发一次Barrier!
@@ -45,6 +48,7 @@ public class CheckpointDemo01 {
             env.setStateBackend(new FsStateBackend("file:///D:\\data\\ckp"));
         }
         */
+
         if(SystemUtils.IS_OS_WINDOWS) {
             env.setStateBackend(new FsStateBackend("file:///F:/FlinkLearning/day10/ckp"));
         }else{
@@ -74,6 +78,24 @@ public class CheckpointDemo01 {
         //设置同一时间有多少个checkpoint可以同时执行
         //env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);//默认为1
 
+        //TODO ===配置重启策略:
+        //1.配置了Checkpoint的情况下不做任务配置:默认是无限重启并自动恢复,可以解决小问题,但是可能会隐藏真正的bug
+        //2.单独配置无重启策略
+        //env.setRestartStrategy(RestartStrategies.noRestart());
+        //3.固定延迟重启--开发中常用
+        env.setRestartStrategy(RestartStrategies.fixedDelayRestart(
+                3, // 最多重启3次数
+                Time.of(5, TimeUnit.SECONDS) // 重启时间间隔
+        ));
+        //上面的设置表示:如果job失败,重启3次, 每次间隔5s
+        //4.失败率重启--开发中偶尔使用
+        /*env.setRestartStrategy(RestartStrategies.failureRateRestart(
+                3, // 每个测量阶段内最大失败次数
+                Time.of(1, TimeUnit.MINUTES), //失败率测量的时间间隔
+                Time.of(3, TimeUnit.SECONDS) // 两次连续重启的时间间隔
+        ));*/
+        //上面的设置表示:如果1分钟内job失败不超过三次,自动重启,每次重启间隔3s (如果1分钟内程序失败达到3次,则程序退出)
+
 
         //TODO 1.source
         DataStream<String> linesDS = env.socketTextStream("master", 9999);
@@ -86,6 +108,10 @@ public class CheckpointDemo01 {
                 //value就是每一行
                 String[] words = value.split(" ");
                 for (String word : words) {
+                    if (word.equals("bug")) {
+                        System.out.println("bug.....");
+                        throw new Exception("bug.....");
+                    }
                     out.collect(Tuple2.of(word, 1));
                 }
             }

@@ -399,7 +399,11 @@ Flink中使用Chandy-Lamport algorithm分布式快照算法取得了成功,后�
 https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/stream/state/checkpointing.html
 
 ```java
-package cn.itcast.checkpoint;
+package cn.tal.Senior_API.Checkpoint;
+/* 
+    @TODO: 演示Flink-Checkpoint相关配置
+    @Author tal
+*/
 
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.flink.api.common.RuntimeExecutionMode;
@@ -417,39 +421,42 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.util.Collector;
 
+
 import java.util.Properties;
 
-/**
- * Author itcast
- * Desc 演示Flink-Checkpoint相关配置
- */
 public class CheckpointDemo01 {
     public static void main(String[] args) throws Exception {
-        //1.env
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
-
+        //TODO 0.env
+            StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+            env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
         //TODO ===========Checkpoint参数设置====
         //===========类型1:必须参数=============
         //设置Checkpoint的时间间隔为1000ms做一次Checkpoint/其实就是每隔1000ms发一次Barrier!
         env.enableCheckpointing(1000);
+
         //设置State状态存储介质/状态后端
         //Memory:State存内存,Checkpoint存内存--开发不用!
         //Fs:State存内存,Checkpoint存FS(本地/HDFS)--一般情况下使用
         //RocksDB:State存RocksDB(内存+磁盘),Checkpoint存FS(本地/HDFS)--超大状态使用,但是对于状态的读写效率要低一点
-        /*if(args.length > 0){
+
+        /*
+        if(args.length > 0){
             env.setStateBackend(new FsStateBackend(args[0]));
         }else {
             env.setStateBackend(new FsStateBackend("file:///D:\\data\\ckp"));
-        }*/
-        if (SystemUtils.IS_OS_WINDOWS) {
-            env.setStateBackend(new FsStateBackend("file:///D:/ckp"));
-        } else {
-            env.setStateBackend(new FsStateBackend("hdfs://node1:8020/flink-checkpoint/checkpoint"));
         }
+        */
+        if(SystemUtils.IS_OS_WINDOWS) {
+            env.setStateBackend(new FsStateBackend("file:///F:/FlinkLearning/day10/ckp"));
+        }else{
+            env.setStateBackend(new FsStateBackend("hdfs://msater:9000/flink-checkpoint/checkpoint"));
+        }
+
         //===========类型2:建议参数===========
-        //设置两个Checkpoint 之间最少等待时间,如设置Checkpoint之间最少是要等 500ms(为了避免每隔1000ms做一次Checkpoint的时候,前一次太慢和后一次重叠到一起去了)
+        //设置两个Checkpoint 之间最少等待时间,如设置Checkpoint之间最少是要等 500ms
+        // (为了避免每隔1000ms做一次Checkpoint的时候,前一次太慢和后一次重叠到一起去了)
         //如:高速公路上,每隔1s关口放行一辆车,但是规定了两车之前的最小车距为500m
+
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(500);//默认是0
         //设置如果在做Checkpoint过程中出现错误，是否让整体任务失败：true是  false不是
         //env.getCheckpointConfig().setFailOnCheckpointingErrors(false);//默认是true
@@ -457,7 +464,8 @@ public class CheckpointDemo01 {
         //设置是否清理检查点,表示 Cancel 时是否需要保留当前的 Checkpoint，默认 Checkpoint会在作业被Cancel时被删除
         //ExternalizedCheckpointCleanup.DELETE_ON_CANCELLATION：true,当作业被取消时，删除外部的checkpoint(默认值)
         //ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION：false,当作业被取消时，保留外部的checkpoint
-        env.getCheckpointConfig().enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
+        env.getCheckpointConfig().enableExternalizedCheckpoints(
+                CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
 
         //===========类型3:直接使用默认的即可===============
         //设置checkpoint的执行模式为EXACTLY_ONCE(默认)
@@ -467,11 +475,12 @@ public class CheckpointDemo01 {
         //设置同一时间有多少个checkpoint可以同时执行
         //env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);//默认为1
 
-        //2.Source
-        DataStream<String> linesDS = env.socketTextStream("node1", 9999);
 
-        //3.Transformation
-        //3.1切割出每个单词并直接记为1
+        //TODO 1.source
+        DataStream<String> linesDS = env.socketTextStream("master", 9999);
+
+        //TODO 2.transformation
+        //2.1切割出每个单词并直接记为1
         DataStream<Tuple2<String, Integer>> wordAndOneDS = linesDS.flatMap(new FlatMapFunction<String, Tuple2<String, Integer>>() {
             @Override
             public void flatMap(String value, Collector<Tuple2<String, Integer>> out) throws Exception {
@@ -482,10 +491,12 @@ public class CheckpointDemo01 {
                 }
             }
         });
-        //3.2分组
+
+        //2.2分组
         //注意:批处理的分组是groupBy,流处理的分组是keyBy
         KeyedStream<Tuple2<String, Integer>, String> groupedDS = wordAndOneDS.keyBy(t -> t.f0);
-        //3.3聚合
+
+        //2.3聚合
         DataStream<Tuple2<String, Integer>> aggResult = groupedDS.sum(1);
 
         DataStream<String> result = (SingleOutputStreamOperator<String>) aggResult.map(new RichMapFunction<Tuple2<String, Integer>, String>() {
@@ -495,18 +506,21 @@ public class CheckpointDemo01 {
             }
         });
 
-        //4.sink
+
+        //TODO 3.sink
         result.print();
 
         Properties props = new Properties();
-        props.setProperty("bootstrap.servers", "node1:9092");
+        props.setProperty("bootstrap.servers", "master:9092");
         FlinkKafkaProducer<String> kafkaSink = new FlinkKafkaProducer<>("flink_kafka", new SimpleStringSchema(), props);
         result.addSink(kafkaSink);
 
-        //5.execute
-        env.execute();
 
-        // /export/server/kafka/bin/kafka-console-consumer.sh --bootstrap-server node1:9092 --topic flink_kafka
+        //TODO 4.execute
+
+        env.execute();
+        // kafka-console-consumer.sh --bootstrap-server master:9092 --topic flink_kafka
+
     }
 }
 
@@ -523,7 +537,11 @@ public class CheckpointDemo01 {
 ![1610940036243](.\img\1610940036243.png)
 
 ```java
-package cn.itcast.checkpoint;
+package cn.tal.Senior_API.Checkpoint;
+/* 
+    @TODO: 演示Flink-Checkpoint+重启策略实现状态恢复
+    @Author tal
+*/
 
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.flink.api.common.RuntimeExecutionMode;
@@ -546,37 +564,41 @@ import org.apache.flink.util.Collector;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Author itcast
- * Desc 演示Flink-Checkpoint+重启策略实现状态恢复
- */
 public class CheckpointDemo02_Restart {
     public static void main(String[] args) throws Exception {
-        //1.env
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
+        //TODO 0.env
+            StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+            env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
 
         //TODO ===========Checkpoint参数设置====
         //===========类型1:必须参数=============
         //设置Checkpoint的时间间隔为1000ms做一次Checkpoint/其实就是每隔1000ms发一次Barrier!
         env.enableCheckpointing(1000);
+
         //设置State状态存储介质/状态后端
         //Memory:State存内存,Checkpoint存内存--开发不用!
         //Fs:State存内存,Checkpoint存FS(本地/HDFS)--一般情况下使用
         //RocksDB:State存RocksDB(内存+磁盘),Checkpoint存FS(本地/HDFS)--超大状态使用,但是对于状态的读写效率要低一点
-        /*if(args.length > 0){
+
+        /*
+        if(args.length > 0){
             env.setStateBackend(new FsStateBackend(args[0]));
         }else {
             env.setStateBackend(new FsStateBackend("file:///D:\\data\\ckp"));
-        }*/
-        if (SystemUtils.IS_OS_WINDOWS) {
-            env.setStateBackend(new FsStateBackend("file:///D:/ckp"));
-        } else {
-            env.setStateBackend(new FsStateBackend("hdfs://node1:8020/flink-checkpoint/checkpoint"));
         }
+        */
+
+        if(SystemUtils.IS_OS_WINDOWS) {
+            env.setStateBackend(new FsStateBackend("file:///F:/FlinkLearning/day10/ckp"));
+        }else{
+            env.setStateBackend(new FsStateBackend("hdfs://master:9000/flink-checkpoint/checkpoint"));
+        }
+
         //===========类型2:建议参数===========
-        //设置两个Checkpoint 之间最少等待时间,如设置Checkpoint之间最少是要等 500ms(为了避免每隔1000ms做一次Checkpoint的时候,前一次太慢和后一次重叠到一起去了)
+        //设置两个Checkpoint 之间最少等待时间,如设置Checkpoint之间最少是要等 500ms
+        // (为了避免每隔1000ms做一次Checkpoint的时候,前一次太慢和后一次重叠到一起去了)
         //如:高速公路上,每隔1s关口放行一辆车,但是规定了两车之前的最小车距为500m
+
         env.getCheckpointConfig().setMinPauseBetweenCheckpoints(500);//默认是0
         //设置如果在做Checkpoint过程中出现错误，是否让整体任务失败：true是  false不是
         //env.getCheckpointConfig().setFailOnCheckpointingErrors(false);//默认是true
@@ -584,7 +606,8 @@ public class CheckpointDemo02_Restart {
         //设置是否清理检查点,表示 Cancel 时是否需要保留当前的 Checkpoint，默认 Checkpoint会在作业被Cancel时被删除
         //ExternalizedCheckpointCleanup.DELETE_ON_CANCELLATION：true,当作业被取消时，删除外部的checkpoint(默认值)
         //ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION：false,当作业被取消时，保留外部的checkpoint
-        env.getCheckpointConfig().enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
+        env.getCheckpointConfig().enableExternalizedCheckpoints(
+                CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
 
         //===========类型3:直接使用默认的即可===============
         //设置checkpoint的执行模式为EXACTLY_ONCE(默认)
@@ -592,7 +615,7 @@ public class CheckpointDemo02_Restart {
         //设置checkpoint的超时时间,如果 Checkpoint在 60s内尚未完成说明该次Checkpoint失败,则丢弃。
         env.getCheckpointConfig().setCheckpointTimeout(60000);//默认10分钟
         //设置同一时间有多少个checkpoint可以同时执行
-        env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);//默认为1
+        //env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);//默认为1
 
         //TODO ===配置重启策略:
         //1.配置了Checkpoint的情况下不做任务配置:默认是无限重启并自动恢复,可以解决小问题,但是可能会隐藏真正的bug
@@ -613,11 +636,11 @@ public class CheckpointDemo02_Restart {
         //上面的设置表示:如果1分钟内job失败不超过三次,自动重启,每次重启间隔3s (如果1分钟内程序失败达到3次,则程序退出)
 
 
-        //2.Source
-        DataStream<String> linesDS = env.socketTextStream("node1", 9999);
+        //TODO 1.source
+        DataStream<String> linesDS = env.socketTextStream("master", 9999);
 
-        //3.Transformation
-        //3.1切割出每个单词并直接记为1
+        //TODO 2.transformation
+        //2.1切割出每个单词并直接记为1
         DataStream<Tuple2<String, Integer>> wordAndOneDS = linesDS.flatMap(new FlatMapFunction<String, Tuple2<String, Integer>>() {
             @Override
             public void flatMap(String value, Collector<Tuple2<String, Integer>> out) throws Exception {
@@ -632,10 +655,12 @@ public class CheckpointDemo02_Restart {
                 }
             }
         });
-        //3.2分组
+
+        //2.2分组
         //注意:批处理的分组是groupBy,流处理的分组是keyBy
         KeyedStream<Tuple2<String, Integer>, String> groupedDS = wordAndOneDS.keyBy(t -> t.f0);
-        //3.3聚合
+
+        //2.3聚合
         DataStream<Tuple2<String, Integer>> aggResult = groupedDS.sum(1);
 
         DataStream<String> result = (SingleOutputStreamOperator<String>) aggResult.map(new RichMapFunction<Tuple2<String, Integer>, String>() {
@@ -645,24 +670,27 @@ public class CheckpointDemo02_Restart {
             }
         });
 
-        //4.sink
+
+        //TODO 3.sink
         result.print();
 
         Properties props = new Properties();
-        props.setProperty("bootstrap.servers", "node1:9092");
+        props.setProperty("bootstrap.servers", "master:9092");
         FlinkKafkaProducer<String> kafkaSink = new FlinkKafkaProducer<>("flink_kafka", new SimpleStringSchema(), props);
         result.addSink(kafkaSink);
 
-        //5.execute
-        env.execute();
 
-        // /export/server/kafka/bin/kafka-console-consumer.sh --bootstrap-server node1:9092 --topic flink_kafka
+        //TODO 4.execute
+
+        env.execute();
+        // kafka-console-consumer.sh --bootstrap-server master:9092 --topic flink_kafka
+
     }
 }
 
 ```
 
-
+![image-20211125133955453](.\img\image-20211125133955453.png)
 
 ### 手动重启-半自动-了解
 
@@ -684,7 +712,7 @@ http://node1:8081/#/submit
 
 6.重新提交任务并指定从指定的ckp目录恢复状态接着计算
 
-hdfs://node1:8020/flink-checkpoint/checkpoint/acb9071752276e86552a30fda41e021c/chk-100
+hdfs://master:9000/flink-checkpoint/checkpoint/1e0a3039f1f868683b348bcc9c0f7121/chk-234
 
 ![1610940852166](.\img\1610940852166.png)
 
@@ -706,21 +734,24 @@ hdfs://node1:8020/flink-checkpoint/checkpoint/acb9071752276e86552a30fda41e021c/c
 
 ```shell
 # 启动yarn session
-/export/server/flink/bin/yarn-session.sh -n 2 -tm 800 -s 1 -d
+yarn-session.sh -n 2 -tm 800 -s 1 -d
 
 # 运行job-会自动执行Checkpoint
-/export/server/flink/bin/flink run --class cn.itcast.checkpoint.CheckpointDemo01 /root/ckp.jar
+flink run --class cn.tal.Senior_API.Checkpoint.CheckpointDemo01 /root/ckp.jar
 
 # 手动创建savepoint--相当于手动做了一次Checkpoint
-/export/server/flink/bin/flink savepoint 0e921a10eb31bb0983b637929ec87a8a hdfs://node1:8020/flink-checkpoint/savepoint/
+flink savepoint d56445775346ea0926a9b4caf8bfb54b hdfs://master:9000/flink-checkpoint/savepoint/
 
 # 停止job
-/export/server/flink/bin/flink cancel 0e921a10eb31bb0983b637929ec87a8a
+flink cancel d56445775346ea0926a9b4caf8bfb54b
 
 # 重新启动job,手动加载savepoint数据
-/export/server/flink/bin/flink run -s hdfs://node1:8020/flink-checkpoint/savepoint/savepoint-0e921a-1cac737bff7a --class cn.itcast.checkpoint.CheckpointDemo01 /root/ckp.jar 
+flink run -s hdfs://master:9000/flink-checkpoint/savepoint/savepoint-d56445-52fc30fec149 --class cn.tal.Senior_API.Checkpoint.CheckpointDemo01 /root/ckp.jar 
 
 # 停止yarn session
-yarn application -kill application_1607782486484_0014
+yarn application -kill application_1637810682893_0001
 ```
 
+![image-20211125142404074](.\img\image-20211125142404074.png)
+
+![image-20211125142727030](.\img\image-20211125142727030.png)
