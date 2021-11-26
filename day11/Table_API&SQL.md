@@ -449,7 +449,11 @@ public class Demo03 {
 ![image-20211125215419619](.\img\image-20211125215419619.png)
 
 ```java
-package cn.itcast.sql;
+package cn.tal.Senior_API.SQL;
+/* 
+    @TODO: 演示Flink Table&SQL 案例- 使用事件时间+Watermaker+window完成订单统计-Table风格
+    @Author tal
+*/
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -458,6 +462,7 @@ import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.table.api.EnvironmentSettings;
@@ -474,10 +479,6 @@ import java.util.concurrent.TimeUnit;
 import static org.apache.flink.table.api.Expressions.$;
 import static org.apache.flink.table.api.Expressions.lit;
 
-/**
- * Author itcast
- * Desc 演示Flink Table&SQL 案例- 使用事件时间+Watermaker+window完成订单统计-Table风格
- */
 public class Demo03_2 {
     public static void main(String[] args) throws Exception {
         //TODO 0.env
@@ -486,13 +487,17 @@ public class Demo03_2 {
         StreamTableEnvironment tenv = StreamTableEnvironment.create(env, settings);
 
         //TODO 1.source
-        DataStreamSource<Order> orderDS  = env.addSource(new RichSourceFunction<Order>() {
+        DataStreamSource<Order> orderDS = env.addSource(new RichSourceFunction<Order>() {
             private Boolean isRunning = true;
+
             @Override
             public void run(SourceContext<Order> ctx) throws Exception {
                 Random random = new Random();
                 while (isRunning) {
-                    Order order = new Order(UUID.randomUUID().toString(), random.nextInt(3), random.nextInt(101), System.currentTimeMillis());
+                    Order order = new Order(UUID.randomUUID().toString(),
+                            random.nextInt(3),
+                            random.nextInt(101),
+                            System.currentTimeMillis());
                     TimeUnit.SECONDS.sleep(1);
                     ctx.collect(order);
                 }
@@ -504,22 +509,25 @@ public class Demo03_2 {
             }
         });
 
+
         //TODO 2.transformation
         //需求:事件时间+Watermarker+FlinkSQL和Table的window完成订单统计
-        DataStream<Order> orderDSWithWatermark = orderDS.assignTimestampsAndWatermarks(WatermarkStrategy.<Order>forBoundedOutOfOrderness(Duration.ofSeconds(5))
-                .withTimestampAssigner((order, recordTimestamp) -> order.getCreateTime())
-        );
+        SingleOutputStreamOperator<Order> orderDSWithWatermark = orderDS
+                .assignTimestampsAndWatermarks(WatermarkStrategy
+                        .<Order>forBoundedOutOfOrderness(Duration.ofSeconds(5))
+                        .withTimestampAssigner((order, recordTimestamp) -> order.getCreateTime()));
 
         //将DataStream-->View/Table,注意:指定列的时候需要指定哪一列是时间
-        tenv.createTemporaryView("t_order",orderDSWithWatermark,$("orderId"), $("userId"), $("money"), $("createTime").rowtime());
-        //Table table = tenv.fromDataStream(orderDSWithWatermark, $("orderId"), $("userId"), $("money"), $("createTime").rowtime());
-        //table.groupBy().select();
-/*
-select  userId, count(orderId) as orderCount, max(money) as maxMoney,min(money) as minMoney
-from t_order
-group by userId,
-tumble(createTime, INTERVAL '5' SECOND)
- */
+        tenv.createTemporaryView("t_order",orderDSWithWatermark,$("orderId"),
+                $("userId"), $("money"), $("createTime").rowtime());
+
+        /*
+        select  userId, count(orderId) as orderCount, max(money) as maxMoney,min(money) as minMoney
+        from t_order
+        group by userId,
+        tumble(createTime, INTERVAL '5' SECOND)
+         */
+
         Table resultTable = tenv.from("t_order")
                 .window(Tumble.over(lit(5).second())
                         .on($("createTime"))
@@ -534,12 +542,15 @@ tumble(createTime, INTERVAL '5' SECOND)
 
         DataStream<Tuple2<Boolean, Row>> resultDS = tenv.toRetractStream(resultTable, Row.class);
 
+
         //TODO 3.sink
         resultDS.print();
 
         //TODO 4.execute
+
         env.execute();
     }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -557,29 +568,40 @@ tumble(createTime, INTERVAL '5' SECOND)
 
 ## 案例4
 
-![1610960624321](F:/FlinkLearningFile/资料-flink1.12入门到精通/Flink-day04/笔记/Flink-day04.assets/1610960624321.png)
+![1610960624321](.\img\1610960624321.png)
 
 
 
 ```java
-package cn.itcast.sql;
+package cn.tal.Senior_API.SQL;
+/* 
+    @TODO: 演示Flink Table&SQL 案例- 从Kafka:input_kafka主题消费数据并生成Table,然后过滤出状态为success的数据再写回到Kafka:output_kafka主题
+    @Author tal
+*/
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableResult;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
-/**
- * Author itcast
- * Desc 演示Flink Table&SQL 案例- 从Kafka:input_kafka主题消费数据并生成Table,然后过滤出状态为success的数据再写回到Kafka:output_kafka主题
- */
+import java.time.Duration;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import static org.apache.flink.table.api.Expressions.$;
+
 public class Demo04 {
     public static void main(String[] args) throws Exception {
         //TODO 0.env
@@ -609,6 +631,7 @@ public class Demo04 {
         String sql = "select * from input_kafka where status='success'";
         Table etlResult = tenv.sqlQuery(sql);
 
+
         //TODO 3.sink
         DataStream<Tuple2<Boolean, Row>> resultDS = tenv.toRetractStream(etlResult, Row.class);
         resultDS.print();
@@ -631,9 +654,10 @@ public class Demo04 {
 
 
         //TODO 4.execute
-        env.execute();
 
+        env.execute();
     }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -644,16 +668,18 @@ public class Demo04 {
         private Long createTime;//事件时间
     }
 }
-//准备kafka主题
-///export/server/kafka/bin/kafka-topics.sh --create --zookeeper node1:2181 --replication-factor 2 --partitions 3 --topic input_kafka
-///export/server/kafka/bin/kafka-topics.sh --create --zookeeper node1:2181 --replication-factor 2 --partitions 3 --topic output_kafka
-///export/server/kafka/bin/kafka-console-producer.sh --broker-list node1:9092 --topic input_kafka
-//{"user_id": "1", "page_id":"1", "status": "success"}
-//{"user_id": "1", "page_id":"1", "status": "success"}
-//{"user_id": "1", "page_id":"1", "status": "success"}
-//{"user_id": "1", "page_id":"1", "status": "success"}
-//{"user_id": "1", "page_id":"1", "status": "fail"}
-///export/server/kafka/bin/kafka-console-consumer.sh --bootstrap-server node1:9092 --topic output_kafka --from-beginning
+
+
+//  准备kafka主题
+//  kafka-topics.sh --create --zookeeper master:2181 --replication-factor 2 --partitions 3 --topic input_kafka
+//  kafka-topics.sh --create --zookeeper master:2181 --replication-factor 2 --partitions 3 --topic output_kafka
+//  kafka-console-producer.sh --broker-list master:9092 --topic input_kafka
+//  {"user_id": "1", "page_id":"1", "status": "success"}
+//  {"user_id": "1", "page_id":"1", "status": "success"}
+//  {"user_id": "1", "page_id":"1", "status": "success"}
+//  {"user_id": "1", "page_id":"1", "status": "success"}
+//  {"user_id": "1", "page_id":"1", "status": "fail"}
+//  kafka-console-consumer.sh --bootstrap-server master:9092 --topic output_kafka --from-beginning
 ```
 
 

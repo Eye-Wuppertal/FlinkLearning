@@ -1,6 +1,6 @@
 package cn.tal.Senior_API.SQL;
 /* 
-    @TODO: 演示Flink Table&SQL 案例- 使用事件时间+Watermaker+window完成订单统计
+    @TODO: 演示Flink Table&SQL 案例- 使用事件时间+Watermaker+window完成订单统计-Table风格
     @Author tal
 */
 
@@ -16,6 +16,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.RichSourceFunction;
 import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
+import org.apache.flink.table.api.Tumble;
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
@@ -25,6 +26,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.apache.flink.table.api.Expressions.$;
+import static org.apache.flink.table.api.Expressions.lit;
 
 public class Demo03_2 {
     public static void main(String[] args) throws Exception {
@@ -75,13 +77,17 @@ public class Demo03_2 {
         tumble(createTime, INTERVAL '5' SECOND)
          */
 
-        String sql = "select userId, count(orderId) as orderCount, max(money) as maxMoney,min(money) as minMoney\n " +
-                "from t_order\n " +
-                "group by userId,\n " +
-                "tumble(createTime, INTERVAL '5' SECOND)";
-
-        //执行sql
-        Table resultTable = tenv.sqlQuery(sql);
+        Table resultTable = tenv.from("t_order")
+                .window(Tumble.over(lit(5).second())
+                        .on($("createTime"))
+                        .as("tumbleWindow"))
+                .groupBy($("tumbleWindow"), $("userId"))
+                .select(
+                        $("userId"),
+                        $("orderId").count().as("orderCount"),
+                        $("money").max().as("maxMoney"),
+                        $("money").min().as("minMoney")
+                );
 
         DataStream<Tuple2<Boolean, Row>> resultDS = tenv.toRetractStream(resultTable, Row.class);
 
