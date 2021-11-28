@@ -70,7 +70,7 @@ https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/common.ht
 
   ![img](.\img\wps2.jpg)
 
-   
+  ​                                           
 
 - 连续查询/需要借助State
 
