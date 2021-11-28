@@ -43,7 +43,7 @@ hello , (hello,2)
 ## 状态分类
 
 - State
-  - ManagerState--开发中推荐使用 : Fink自动管理/优化,支持多种数据结构
+  - Managed State--开发中推荐使用 : Fink自动管理/优化,支持多种数据结构
     - KeyState--只能在keyedStream上使用,支持多种数据结构
     - OperatorState--所有都可以使用一般用在Source上,支持ListState
   - RawState--完全由用户自己管理,只支持byte[],只能在自定义Operator上使用
@@ -63,8 +63,8 @@ KeyBy之后的State,可以理解为分区过的State，每个并行keyed Operato
 
 ![image-20211117185741433](.\img\image-20211117185741433.png)
 
-Operator State又称为 non-keyed state，与Key无关的State，每一个 operator state 都仅与一个 operat    的实例绑定。
-   Operator State 可以用于所有算子，但一般常用于 Sourc
+Operator State又称为 non-keyed state，与Key无关的State，每一个 operator state 都仅与一个 operator的实例绑定。
+   Operator State 可以用于所有算子，但一般常用于 Source
 
 ## 存储State的数据结构/API介绍
 
