@@ -317,7 +317,7 @@ public class WindowDemo03 {
 
 
 
-# Time(Watermarker)
+# Time(Watermaker)
 
 ## 时间分类
 
@@ -343,13 +343,13 @@ public class WindowDemo03 {
 
 ==总结:==
 
-1.Watermarker本质是时间戳
+1.Watermaker本质是时间戳
 
-2.Watermarker = 当前进来的数据最大的事件时间 - ==最大允许的数据延迟时间或乱序时间==
+2.Watermaker = 当前进来的数据最大的事件时间 - 最大允许的数据延迟时间或乱序时间
 
-3.Watermarker 可以通过改变窗口触发计算时机来解决一定程度上的数据乱序或延迟达到的问题
+3.Watermaker 可以通过改变窗口触发计算时机来解决一定程度上的数据乱序或延迟达到的问题
 
-4.Watermarker  >= 窗口结束时间 时触发窗口计算==
+4.Watermaker  >= 窗口结束时间 时触发窗口计算
 
 5.当前的最大的事件时间 - 最大允许的数据延迟时间或乱序时间>= 窗口结束时间时触发窗口计算
 
@@ -359,7 +359,7 @@ public class WindowDemo03 {
 
 ![1610852812181](.\img\1610852812181.png) 
 
-![1610852975345](.\img\1610852975345.png)
+![](.\img\1610852975345.png)
 
 ![1610853067679](.\img\1610853067679.png)
 
