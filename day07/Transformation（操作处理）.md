@@ -90,11 +90,11 @@ public class TransformationDemo01 {
 
 
 
-![image-20211104220845189](.\img\image-20211104220845189.png)
+![image-20211104220845189](img/image-20211104220845189-16468842538131.png)
 
 ## 合并和连接
 
-![1610682338942](.\img\1610682338942.png)
+![1610682338942](img/1610682338942-16468842555102.png)
 
 ```java
 package cn.itcast.transformation;
@@ -161,7 +161,7 @@ public class TransformationDemo02 {
 
 
 
-![image-20211104221331613](.\img\image-20211104221331613.png)
+![image-20211104221331613](img/image-20211104221331613-16468842584173.png)
 
 ## 拆分和选择
 
@@ -237,15 +237,15 @@ public class TransformationDemo03 {
 
 ```
 
-![image-20211104221737097](.\img\image-20211104221737097.png)
+![image-20211104221737097](img/image-20211104221737097-16468842622114.png)
 
 ## rebalance重平衡分区
 
 解决数据倾斜的问题
 
-![1610692741999](.\img\1610692741999.png)
+![1610692741999](img/1610692741999-16468842636655.png)
 
-![1610692744670](.\img\1610692744670.png)
+![1610692744670](img/1610692744670-16468842647786.png)
 
 ```java
 package cn.itcast.transformation;
@@ -316,7 +316,7 @@ public class TransformationDemo04 {
 
 ## 其他分区操作
 
-![1610694218932](.\img\1610694218932.png)
+![1610694218932](img/1610694218932-16468842673387.png)
 
 ```java
 package cn.itcast.transformation;
@@ -436,7 +436,7 @@ public class SinkDemo01 {
 }
 ```
 
-![image-20211105094904091](.\img\image-20211105094904091.png)
+![image-20211105094904091](img/image-20211105094904091-16468842715038.png)
 
 ## 自定义Sink
 
@@ -577,7 +577,7 @@ public class JDBCDemo {
 
 ## Kafka Consumer/Source
 
-![image-20211105130620067](.\img\image-20211105130620067.png)
+![image-20211105130620067](img/image-20211105130620067-16468842753619.png)
 
 参数
 
@@ -593,13 +593,13 @@ env.addSource(new Kafka Consumer/Source(参数))
 6. 动态分区检测(当kafka的分区数变化/增加时,Flink能够检测到!)
 7. 如果没有设置Checkpoint,那么可以设置自动提交offset,后续学习了Checkpoint会把offset随着做Checkpoint的时候提交到Checkpoint和默认主题中
 
-![image-20211105163923637](.\img\image-20211105163923637.png)
+![image-20211105163923637](img/image-20211105163923637-164688427702010.png)
 
-![image-20211105163939972](.\img\image-20211105163939972.png)
+![image-20211105163939972](img/image-20211105163939972-164688427797611.png)
 
-![image-20211105164009988](.\img\image-20211105164009988.png)
+![image-20211105164009988](img/image-20211105164009988-164688427944612.png)
 
-![image-20211105164021803](.\img\image-20211105164021803.png)
+![image-20211105164021803](img/image-20211105164021803-164688428062913.png)
 
 ### Kafka命令
 
@@ -683,7 +683,7 @@ public class KafkaComsumerDemo {
 // 观察控制台输出结果
 ```
 
-![image-20211107031358883](.\img\image-20211107031358883.png)
+![image-20211107031358883](img/image-20211107031358883-164688428305814.png)
 
 中途出现的问题
 
@@ -773,7 +773,7 @@ public class KafkaSinkDemo {
 
 ```
 
-![image-20211107035344114](.\img\image-20211107035344114.png)
+![image-20211107035344114](img/image-20211107035344114-164688428584615.png)
 
 
 
