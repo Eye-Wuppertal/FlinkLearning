@@ -110,8 +110,8 @@ bin/kafka-topics.sh --bootstrap-server master:9092 --list
 ### Kafka一键启动、关闭shell
 
 ```shell
-# 1.在节点1中创建 /export/onekey 目录
-cd /export/onekey
+# 1.在节点1中创建 /software/onekey 目录
+cd /software/onekey
 
 2.准备slave配置文件，用于保存要启动哪几个节点上的kafka
 master
