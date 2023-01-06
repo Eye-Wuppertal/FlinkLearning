@@ -2,11 +2,11 @@
 
 ## 为什么需要Table&SQL
 
-![1610952155121](.\img\1610952155121.png)
+![1610952155121](img/1610952155121-16468844679851.png)
 
 ## 发展历史
 
-![1610952342240](.\img\1610952342240.png)
+![1610952342240](img/1610952342240-16468844694802.png)
 
 
 
@@ -16,7 +16,7 @@
 
 https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/
 
-![1610952957008](.\img\1610952957008.png)
+![1610952957008](img/1610952957008-16468844714293.png)
 
 
 
@@ -24,7 +24,7 @@ https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/
 
   https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/common.html
 
-  ![1610953005549](.\img\1610953005549.png)
+  ![1610953005549](img/1610953005549-16468844731484.png)
 
 
 
@@ -32,7 +32,7 @@ https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/
 
   https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/common.html
 
-![1610953187560](.\img\1610953187560.png)
+![1610953187560](img/1610953187560-16468844751325.png)
 
 
 
@@ -40,7 +40,7 @@ https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/
 
   https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/common.html
 
-![1610953271097](.\img\1610953271097.png)
+![1610953271097](img/1610953271097-16468844765536.png)
 
 
 
@@ -48,9 +48,9 @@ https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/
 
 https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/common.html
 
-![1610953328055](.\img\1610953328055.png)
+![1610953328055](img/1610953328055-16468844779507.png)
 
-![1610953349717](.\img\1610953349717.png)
+![1610953349717](img/1610953349717-16468844798978.png)
 
 
 
@@ -58,23 +58,23 @@ https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/common.ht
 
   https://ci.apache.org/projects/flink/flink-docs-release-1.12/dev/table/common.html
 
-![1610953436360](.\img\1610953436360.png)
+![1610953436360](img/1610953436360-16468844818949.png)
 
 
 
 ## 核心概念
 
-![1610953597212](.\img\1610953597212.png)
+![1610953597212](img/1610953597212-164688448444810.png)
 
 - 动态表/无界表
 
-  ![img](.\img\wps2.jpg)
+  ![img](img/wps2-164688448581411.jpg)
 
   ​                                           
 
 - 连续查询/需要借助State
 
-![img](.\img\wps1.jpg)
+![img](img/wps1-164688448736212.jpg)
 
 ## 案例1
 
@@ -171,7 +171,7 @@ public class Demo01 {
 
 ```
 
-![image-20211125175706120](.\img\image-20211125175706120.png)
+![image-20211125175706120](img/image-20211125175706120-164688449143313.png)
 
 
 
@@ -259,7 +259,7 @@ public class Demo02 {
 
 ```
 
-![image-20211125175634404](.\img\image-20211125175634404.png)
+![image-20211125175634404](img/image-20211125175634404-164688449787114.png)
 
 
 
@@ -334,7 +334,7 @@ public class Demo02_2 {
 
 ## 案例3
 
-![1610959073407](.\img\1610959073407.png)
+![1610959073407](img/1610959073407-164688450141515.png)
 
 ```java
 package cn.tal.Senior_API.SQL;
@@ -446,7 +446,7 @@ public class Demo03 {
 
 ```
 
-![image-20211125215419619](.\img\image-20211125215419619.png)
+![image-20211125215419619](img/image-20211125215419619-164688450639616.png)
 
 ```java
 package cn.tal.Senior_API.SQL;
@@ -568,7 +568,7 @@ public class Demo03_2 {
 
 ## 案例4
 
-![1610960624321](.\img\1610960624321.png)
+![1610960624321](img/1610960624321-164688451075917.png)
 
 
 

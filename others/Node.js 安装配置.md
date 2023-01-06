@@ -30,7 +30,7 @@ D:\App\nodejs\node_modules
 用户变量里的Path，将相应npm的路径改为：D:\App\nodejs\node_global
 ```
 
-![image-20211127103635743](.\img\image-20211127103635743.png)
+![image-20211127103635743](img/image-20211127103635743-16468846483621.png)
 
 
 
@@ -40,11 +40,11 @@ cmd命令下执行 npm install webpack -g
 
 如果npm install webpack -g跑起来出现ERR错误的话
 
-![image-20211127104608652](.\img\image-20211127104608652.png)
+![image-20211127104608652](img/image-20211127104608652-16468846506182.png)
 
 可以尝试删除C:\Users{账户}\下的.npmrc文件 注意：这个文件是隐藏的
 
 重新安装，ok
 
-![image-20211127104659798](.\img\image-20211127104659798.png)
+![image-20211127104659798](img/image-20211127104659798-16468846521133.png)
 

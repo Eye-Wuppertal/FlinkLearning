@@ -1,6 +1,6 @@
 # Flume
 
-![image-20211111191534948](.\img\image-20211111191534948.png)
+![image-20211111191534948](img/image-20211111191534948-16468845558871.png)
 
 ## 概述
 
@@ -99,7 +99,7 @@ yum -y install xinetd.x86_64 # 先安装telnet
 telnet anget-hostname  port   （telnet localhost 44444）
 ```
 
-![image-20211111201533930](.\img\image-20211111201533930.png)
+![image-20211111201533930](img/image-20211111201533930-16468845588382.png)
 
 - flume开发步骤
 
